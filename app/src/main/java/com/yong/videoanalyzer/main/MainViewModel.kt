@@ -4,10 +4,13 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.yong.videoanalyzer.analyzer.VideoAnalyzer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /**
  * Main ViewModel
@@ -41,6 +44,28 @@ class MainViewModel: ViewModel() {
      */
     fun onSceneChangeThresholdChanged(sceneChangeThreshold: Float) {
         _uiState.update { it.copy(sceneChangeThreshold = sceneChangeThreshold) }
+    }
+
+    /**
+     * Analyze the selected video and collect scene changes.
+     * Does nothing when no video is selected or analysis is already running.
+     */
+    fun onBtnAnalyze(context: Context) {
+        val uri = videoUri ?: return
+        val currentState = _uiState.value
+        if (currentState.isAnalyzing) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isAnalyzing = true, sceneChanges = emptyList()) }
+
+            val sceneChanges = VideoAnalyzer(context).analyze(
+                videoUri = uri,
+                fps = currentState.framesPerSecond,
+                threshold = currentState.sceneChangeThreshold,
+            )
+
+            _uiState.update { it.copy(isAnalyzing = false, sceneChanges = sceneChanges) }
+        }
     }
 
     /**
