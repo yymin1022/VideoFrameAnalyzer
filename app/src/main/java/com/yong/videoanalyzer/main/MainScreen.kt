@@ -146,7 +146,7 @@ private fun SceneChangeResult(
 
             Text(
                 modifier = Modifier,
-                text = "Elapsed time: $elapsedTimeMs ms",
+                text = "Elapsed time: ${formatElapsed(elapsedTimeMs)}",
             )
         }
 
@@ -181,9 +181,26 @@ private fun SceneChangeItem(
         Text(
             modifier = Modifier
                 .padding(start = 8.dp),
-            text = "${sceneChange.timestampMs} ms (similarity ${"%.2f".format(sceneChange.similarity)})",
+            text = "${formatTimestamp(sceneChange.timestampMs)} (similarity ${"%.2f".format(sceneChange.similarity)})",
         )
     }
+}
+
+/**
+ * Formats a video position (ms) as mm:ss.SSS for display.
+ */
+private fun formatTimestamp(millis: Long): String {
+    val minutes = millis / 60_000
+    val seconds = (millis % 60_000) / 1000
+    val remainMillis = millis % 1000
+    return "%02d:%02d.%03d".format(minutes, seconds, remainMillis)
+}
+
+/**
+ * Formats an elapsed duration (ms) as seconds for display.
+ */
+private fun formatElapsed(millis: Long): String {
+    return "%.2f s".format(millis / 1000.0)
 }
 
 @Composable
