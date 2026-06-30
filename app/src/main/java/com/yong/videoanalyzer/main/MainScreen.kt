@@ -2,10 +2,17 @@ package com.yong.videoanalyzer.main
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,8 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.yong.videoanalyzer.analyzer.SceneChange
 import kotlin.math.roundToInt
 
 private const val MIMETYPE_VIDEO = "video/*"
@@ -45,6 +55,7 @@ fun MainScreen(
 
     Column(
         modifier = modifier
+            .fillMaxSize()
             .padding(8.dp),
     ) {
         VideoSelect(
@@ -65,6 +76,105 @@ fun MainScreen(
                 .padding(top = 16.dp),
             threshold = uiState.sceneChangeThreshold,
             onThresholdChanged = viewModel::onSceneChangeThresholdChanged,
+        )
+
+        AnalyzeButton(
+            modifier = Modifier
+                .padding(top = 16.dp),
+            isAnalyzing = uiState.isAnalyzing,
+            isVideoSelected = uiState.videoFileName != null,
+            onBtnAnalyze = { viewModel.onBtnAnalyze(context) },
+        )
+
+        if (!uiState.isAnalyzing) {
+            SceneChangeResult(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 16.dp),
+                sceneChanges = uiState.sceneChanges,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AnalyzeButton(
+    modifier: Modifier = Modifier,
+    isAnalyzing: Boolean,
+    isVideoSelected: Boolean,
+    onBtnAnalyze: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Button(
+            modifier = Modifier
+                .fillMaxWidth(),
+            onClick = onBtnAnalyze,
+            enabled = isVideoSelected && !isAnalyzing,
+        ) {
+            Text("Start Analyze")
+        }
+
+        if (isAnalyzing) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .padding(top = 16.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun SceneChangeResult(
+    modifier: Modifier = Modifier,
+    sceneChanges: List<SceneChange>,
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxWidth(),
+    ) {
+        item {
+            Text(
+                modifier = Modifier,
+                text = "Detected ${sceneChanges.size} scene changes",
+            )
+        }
+
+        items(sceneChanges) { sceneChange ->
+            SceneChangeItem(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                sceneChange = sceneChange,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SceneChangeItem(
+    modifier: Modifier = Modifier,
+    sceneChange: SceneChange,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            modifier = Modifier
+                .size(96.dp),
+            bitmap = sceneChange.frame.asImageBitmap(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+        )
+
+        Text(
+            modifier = Modifier
+                .padding(start = 8.dp),
+            text = "${sceneChange.timestampMs} ms (similarity ${"%.2f".format(sceneChange.similarity)})",
         )
     }
 }
