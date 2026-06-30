@@ -11,4 +11,5 @@ data class MainUiState(
     val sceneChangeThreshold: Float = 0.5f,
     val isAnalyzing: Boolean = false,
     val sceneChanges: List<SceneChange> = emptyList(),
+    val elapsedTimeMs: Long = 0L,
 )

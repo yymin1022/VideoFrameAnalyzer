@@ -2,6 +2,7 @@ package com.yong.videoanalyzer.main
 
 import android.content.Context
 import android.net.Uri
+import android.os.SystemClock
 import android.provider.OpenableColumns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -58,13 +59,21 @@ class MainViewModel: ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isAnalyzing = true, sceneChanges = emptyList()) }
 
+            val startMs = SystemClock.elapsedRealtime()
             val sceneChanges = VideoAnalyzer(context).analyze(
                 videoUri = uri,
                 fps = currentState.framesPerSecond,
                 threshold = currentState.sceneChangeThreshold,
             )
+            val elapsedTimeMs = SystemClock.elapsedRealtime() - startMs
 
-            _uiState.update { it.copy(isAnalyzing = false, sceneChanges = sceneChanges) }
+            _uiState.update {
+                it.copy(
+                    isAnalyzing = false,
+                    sceneChanges = sceneChanges,
+                    elapsedTimeMs = elapsedTimeMs,
+                )
+            }
         }
     }
 

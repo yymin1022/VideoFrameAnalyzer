@@ -92,6 +92,7 @@ fun MainScreen(
                     .weight(1f)
                     .padding(top = 16.dp),
                 sceneChanges = uiState.sceneChanges,
+                elapsedTimeMs = uiState.elapsedTimeMs,
             )
         }
     }
@@ -131,6 +132,7 @@ private fun AnalyzeButton(
 private fun SceneChangeResult(
     modifier: Modifier = Modifier,
     sceneChanges: List<SceneChange>,
+    elapsedTimeMs: Long,
 ) {
     LazyColumn(
         modifier = modifier
@@ -140,6 +142,11 @@ private fun SceneChangeResult(
             Text(
                 modifier = Modifier,
                 text = "Detected ${sceneChanges.size} scene changes",
+            )
+
+            Text(
+                modifier = Modifier,
+                text = "Elapsed time: $elapsedTimeMs ms",
             )
         }
 
