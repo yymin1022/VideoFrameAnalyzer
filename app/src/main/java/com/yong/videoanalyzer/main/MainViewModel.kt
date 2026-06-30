@@ -30,6 +30,20 @@ class MainViewModel: ViewModel() {
     }
 
     /**
+     * Update fps value (1 ~ 30)
+     */
+    fun onFramesPerSecondChanged(framesPerSecond: Int) {
+        _uiState.update { it.copy(framesPerSecond = framesPerSecond) }
+    }
+
+    /**
+     * Update scene change threshold value (0.0 ~ 1.0)
+     */
+    fun onSceneChangeThresholdChanged(sceneChangeThreshold: Float) {
+        _uiState.update { it.copy(sceneChangeThreshold = sceneChangeThreshold) }
+    }
+
+    /**
      * Resolves the human-readable display name of [uri].
      */
     private fun Context.queryDisplayName(uri: Uri): String? {
