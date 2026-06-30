@@ -6,10 +6,15 @@ import com.yong.videoanalyzer.analyzer.SceneChange
  * UI State for Main ViewModel
  */
 data class MainUiState(
+    // Video file
     val videoFileName: String? = null,
-    val framesPerSecond: Int = 1,
+
+    // Analyze parameter
+    val framesPerSecond: Int = 5,
     val sceneChangeThreshold: Float = 0.5f,
+
+    // Analyze result
+    val elapsedTimeMs: Long = 0L,
     val isAnalyzing: Boolean = false,
     val sceneChanges: List<SceneChange> = emptyList(),
-    val elapsedTimeMs: Long = 0L,
 )
